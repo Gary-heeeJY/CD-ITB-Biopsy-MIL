@@ -1,0 +1,95 @@
+# ============================================
+# MambaMIL模型训练配置文件
+# ============================================
+
+# ============================================
+# 基本配置
+# ============================================
+Task_name: 'MUSK_MambaMIL_2 ViT'
+model_type: 'MambaMIL'             # 确保 models/build.py 中有这个类型的注册
+gpu_id: 0
+DataParallel: False
+model_weights: False
+
+logs_dir: './outputs/AJP_Comparison_experiments'
+model_dir: './outputs/AJP_Comparison_experiments'
+save_detail_result: True
+seed: 421
+
+# ============================================
+# 数据配置 (DATA)
+# ============================================
+DATA:
+  type: 'biospy_CD_ITB'
+  batch_size: 1
+  fold_K: 5
+  fold_idx: 0
+  num_workers: 4
+
+  # 路径配置
+  split_fold: './data/splits/internal_train'
+  pt_path: './data/features/MUSK'
+  label_csv_file: './data/labels/internal_train.csv'
+
+  # 模型维度
+  n_classes: 3
+  case_classes: 2
+  hidden_dim: 1024
+
+  # 【这里是重点】显式覆盖默认字典，锁死标签对应关系
+  slide_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0, 'NO': 2}
+  case_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0}
+  label_col: 'slide_label'
+
+# ============================================
+# 优化器配置 (SOLVER)
+# ============================================
+SOLVER:
+  num_epochs: 100
+  val_step: 1
+  lr: 5e-5
+  case_lr: 5e-5
+
+  weight_decay: 1e-5
+  num_epochs_decay: 30
+  decay_ratio: 0.1
+
+  lr_low: 1e-7
+  lr_warm_epoch: 10
+  lr_cos_epoch: 90
+
+  beta1: 0.9
+  beta2: 0.999
+
+  METRIC: 'LADE'   # 长尾类别损失
+
+  FocalLoss:
+    alpha: None
+    gamma: 4
+    reduction: 'mean'
+
+  activate_func: softmax
+  case_activate_func: softmax
+  feat_distillation: AFS
+
+  LDAM:
+    max_m: 0.5
+    s: 30
+
+# ============================================
+# 模型架构配置 (MODEL)
+# ============================================
+MODEL:
+  Mamba:
+      type: 'SRMamba'  # 可选 'Mamba', 'BiMamba', 'SRMamba'(推荐)
+      layer: 2         # 堆叠层数，2层通常够用
+      act: 'gelu'
+      dropout: 0.3
+      rate: 10         # SRMamba 专用参数
+  Vit:
+    depth: 2          # 设为 0 或 1 表示不使用 Transformer，只用 MLP。 2 是两层、 6 是六层
+    mlp_ratio: 4.0     # 配合浅层网络，倍率也可以适当减小。两层用 4 ，六层用 8 .
+    num_heads: 8       # 如果 depth=0，此参数不生效，但这行得保留防报错
+    qkv_bias: False
+    drop_rate: 0.3
+    attn_drop_rate: 0.0

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "Foundation Model-Based Multiple Instance Learning for Differentiation of Crohn's Disease from Intestinal Tuberculosis in Endoscopic Biopsy Whole-Slide Images"
+message: "Please cite the associated manuscript and this software repository when using the code."
+type: software
+version: 1.0.0
+authors:
+  - family-names: He
+    given-names: Jiayu
+  - family-names: Liu
+    given-names: Xubin
+  - family-names: Duan
+    given-names: Xiaoyu
+  - family-names: Ding
+    given-names: Huijun
+  - family-names: Huang
+    given-names: Bingsheng
+  - family-names: Ye
+    given-names: Ziyin
+keywords:
+  - computational pathology
+  - multiple instance learning
+  - Crohn's disease
+  - intestinal tuberculosis
+  - instance learning

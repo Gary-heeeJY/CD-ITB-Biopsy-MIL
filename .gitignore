@@ -1,0 +1,40 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.log
+*.tmp
+.DS_Store
+.idea/
+.vscode/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Data, features, checkpoints, and generated outputs
+data/*
+!data/README.md
+weights/*
+!weights/README.md
+outputs/
+result/
+results/
+checkpoints/
+swanlog/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.swanlab
+*.ckpt
+
+# Whole-slide images and derived patch stores
+*.svs
+*.kfb
+*.sdpc
+*.ndpi
+*.tif
+*.tiff
+*.mrxs
+*.h5
+
+# Model tokenizers / large downloaded assets
+*.spm
