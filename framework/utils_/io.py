@@ -1,7 +1,5 @@
 import os
-import xlwt, xlrd
 import matplotlib.pyplot as plt
-from xlutils.copy import copy as xl_copy
 
 def to_cuda(tensor):
     if isinstance(tensor, (list,tuple)):
@@ -45,6 +43,10 @@ def metric_plot(metric_list, save_name = None, axis_x =None, ci = None):
     plt.close()
 
 def write_excel_xls(path, sheet_name, value, cell_overwrite_ok=False):
+    import xlrd
+    import xlwt
+    from xlutils.copy import copy as xl_copy
+
     index = len(value)
     if os.path.exists(path):
         workbook = xlrd.open_workbook(path)
@@ -59,6 +61,10 @@ def write_excel_xls(path, sheet_name, value, cell_overwrite_ok=False):
 
 
 def write_excel_xls_append(path, value, sheet_name=None):
+    import xlrd
+    import xlwt
+    from xlutils.copy import copy as xl_copy
+
     if os.path.exists(path):
         index = len(value)
         workbook = xlrd.open_workbook(path)

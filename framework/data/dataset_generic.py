@@ -417,4 +417,3 @@ def get_loader_biospy(image_root, pt_root, split_root, fold, num_workers=2, mode
 
 # 保持接口兼容性
 get_loader_camelyon17 = get_loader_biospy
-y

@@ -564,10 +564,3 @@ if __name__ == '__main__':
                     patch.save(save_path)
 
     print("\nDone! All slides processed.")
-
-    print("\nDone! All slides processed.")
-
-des processed.")
-
-    print("\nDone! All slides processed.")
-

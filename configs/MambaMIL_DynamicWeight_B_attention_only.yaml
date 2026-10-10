@@ -1,0 +1,56 @@
+# MambaMIL ablation B: gated attention only.
+Task_name: 'MUSK_MambaMIL_DynamicWeight_B_attention_only'
+model_type: 'MambaMIL'
+gpu_id: 0
+DataParallel: false
+model_weights: false
+logs_dir: './outputs/AJP_Comparison_experiments'
+model_dir: './outputs/AJP_Comparison_experiments'
+save_detail_result: true
+seed: 421
+
+DATA:
+  type: 'biospy_CD_ITB'
+  batch_size: 1
+  fold_K: 5
+  fold_idx: 0
+  num_workers: 4
+  split_fold: './data/splits/internal_train'
+  pt_path: './data/features/MUSK'
+  label_csv_file: './data/labels/internal_train.csv'
+  n_classes: 3
+  case_classes: 2
+  hidden_dim: 1024
+  slide_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0, 'NO': 2}
+  case_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0}
+  label_col: 'slide_label'
+
+SOLVER:
+  num_epochs: 100
+  val_step: 1
+  lr: 5e-5
+  case_lr: 5e-5
+  weight_decay: 1e-5
+  num_epochs_decay: 30
+  decay_ratio: 0.1
+  lr_low: 1e-7
+  lr_warm_epoch: 10
+  lr_cos_epoch: 90
+  beta1: 0.9
+  beta2: 0.999
+  METRIC: 'LADE'
+  FocalLoss: {alpha: null, gamma: 4, reduction: 'mean'}
+  activate_func: 'softmax'
+  case_activate_func: 'softmax'
+  feat_distillation: 'AFS'
+  LDAM: {max_m: 0.5, s: 30}
+
+MODEL:
+  Mamba: {type: 'SRMamba', layer: 2, act: 'gelu', dropout: 0.3, rate: 10}
+  Vit:
+    depth: 0
+    mlp_ratio: 4.0
+    num_heads: 8
+    qkv_bias: false
+    drop_rate: 0.3
+    attn_drop_rate: 0.0

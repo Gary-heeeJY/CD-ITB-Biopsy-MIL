@@ -7,7 +7,6 @@ from fvcore.common.config import CfgNode as _CfgNode
 from fvcore.common.registry import Registry
 
 from models.MambaMIL import MambaMIL
-from models.TransMIL import TransMIL
 
 
 MODEL_FRAMEWORK_REGISTRY = Registry("FRAME")
@@ -69,6 +68,8 @@ def build_model(cfg, case_model):
             type=cfg.MODEL.Mamba.type,
         )
     elif cfg.model_type == "TransMIL":
+        from models.TransMIL import TransMIL
+
         model = TransMIL(n_classes=cfg.DATA.n_classes)
     else:
         model_class = MODEL_FRAMEWORK_REGISTRY.get(cfg.model_type)

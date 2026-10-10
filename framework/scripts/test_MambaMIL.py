@@ -22,8 +22,15 @@ from engine import (
     train_val_case_mamba,
     train_val_case_mamba_DynamicWeight
 )
+from engine.case_variants import Case_predict_AFSOnly, Case_predict_TransOnly
 from criterion.metrics import predict_metric, get_biospy_patient_metric, get_patient_feat
 from utils_.evaluation import checkpoint_threshold, load_pooled_validation_threshold
+
+
+CASE_VARIANT_CLASSES = {
+    "attention_only": Case_predict_AFSOnly,
+    "transformer_only": Case_predict_TransOnly,
+}
 
 
 def main(args, device):
@@ -91,7 +98,8 @@ def main(args, device):
             type=cfg.MODEL.Mamba.type
         ).to(device)
 
-        case_model = Case_predict(cfg).to(device)
+        case_model_cls = CASE_VARIANT_CLASSES.get(args.aggregation_variant, Case_predict)
+        case_model = case_model_cls(cfg).to(device)
 
         # --- 加载权重 ---
         target_model_name = "case_best_model.pt"
@@ -291,9 +299,11 @@ if __name__ == '__main__':
     parser.add_argument('--n_classes', type=int, default=3)
     parser.add_argument('--case_classes', type=int, default=2)
     parser.add_argument('--mode', type=str, default='AFS')
+    parser.add_argument('--aggregation_variant',
+                        choices=['full', 'attention_only', 'transformer_only'],
+                        default='full')
     parser.add_argument('--save_detail_result', type=bool, default=True)
 
     args = parser.parse_args()
     device = torch.device(f'cuda:{args.gpu_id}' if torch.cuda.is_available() else 'cpu')
     main(args, device)
-(args, device)

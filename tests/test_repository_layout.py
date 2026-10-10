@@ -28,6 +28,9 @@ def test_public_configs_exist():
         "configs/MambaMIL_Encoder_ResNet50.yaml",
         "configs/MambaMIL_Encoder_CONCH.yaml",
         "configs/MambaMIL_Encoder_UNI2-h.yaml",
+        "configs/MambaMIL_DynamicWeight_A_meanpool.yaml",
+        "configs/MambaMIL_DynamicWeight_B_attention_only.yaml",
+        "configs/MambaMIL_DynamicWeight_C_transformer_only.yaml",
     ]
     assert all((ROOT / item).is_file() for item in expected)
 
@@ -47,6 +50,24 @@ def test_public_defaults_use_seed_421():
     for path in (ROOT / "configs").glob("*.yaml"):
         text = path.read_text(encoding="utf-8")
         assert "seed: 421" in text, path
+
+
+def test_ablation_configs_are_parseable_and_portable():
+    import yaml
+
+    paths = [
+        ROOT / "configs/MambaMIL_DynamicWeight_A_meanpool.yaml",
+        ROOT / "configs/MambaMIL_DynamicWeight_B_attention_only.yaml",
+        ROOT / "configs/MambaMIL_DynamicWeight_C_transformer_only.yaml",
+    ]
+    private_markers = ("/nas_3", "/server03_data", "newnas_1")
+    for path in paths:
+        content = path.read_text(encoding="utf-8")
+        config = yaml.safe_load(content)
+        assert config["DATA"]["split_fold"].startswith("./data/")
+        assert config["DATA"]["pt_path"].startswith("./data/")
+        assert config["DATA"]["label_csv_file"].startswith("./data/")
+        assert not any(marker in content for marker in private_markers)
 
 
 def test_no_private_path_markers_in_source():

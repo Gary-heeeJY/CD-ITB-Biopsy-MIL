@@ -1,4 +1,4 @@
-﻿"""
+"""
 Evaluate direct patch-to-patient MIL baselines on an independent test set.
 
 The tested baselines are ABMIL, TransMIL, and MambaMIL trained by
@@ -328,7 +328,3 @@ if __name__ == "__main__":
     main()
 
 # End of baseline evaluation entry point.
-()
-
-# End of baseline evaluation entry point.
-int.

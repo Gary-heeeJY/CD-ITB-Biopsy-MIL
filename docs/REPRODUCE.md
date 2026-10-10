@@ -78,11 +78,36 @@ python scripts/test_baselines.py --models ABMIL,TransMIL,MambaMIL
 
 ```bash
 python scripts/train_ablation.py --variant meanpool
+python scripts/train_ablation.py --variant attention_only
+python scripts/train_ablation.py --variant transformer_only
 ```
 
-The repository intentionally does not expose an unreported Transformer-only
-ablation, `afsonly`, `transonly`, max-pooling, CLAM comparison, PEGTF-MIL
-comparison, or table-wrapper scripts. TransMIL remains available as a direct
+The four settings use the same slide-level MambaMIL training pipeline:
+
+* A: mean pooling, without gated attention or a Transformer.
+* B: gated attention only, without a Transformer.
+* C: Transformer only, with a learned case token instead of the attention
+  token.
+* D: the proposed gated-attention plus Transformer aggregation.
+
+Evaluate B and C with the matching public test entry points:
+
+```bash
+python scripts/test_ablation.py --variant attention_only \
+  --expe_name outputs/AJP_Comparison_experiments/MUSK_MambaMIL_DynamicWeight_B_attention_only/seed-421 \
+  --ex_result outputs/ablation_attention_only_external \
+  --label_csv_file data/labels/external_test.csv \
+  --feat_file data/features/MUSK_CORAL
+
+python scripts/test_ablation.py --variant transformer_only \
+  --expe_name outputs/AJP_Comparison_experiments/MUSK_MambaMIL_DynamicWeight_C_transformer_only/seed-421 \
+  --ex_result outputs/ablation_transformer_only_external \
+  --label_csv_file data/labels/external_test.csv \
+  --feat_file data/features/MUSK_CORAL
+```
+
+Max-pooling, CLAM comparison, and PEGTF-MIL comparison are not part of the
+reported experiment set. TransMIL remains available as a direct
 patch-to-patient baseline through `scripts/train_baselines.py`.
 
 ## 5. Threshold protocol
@@ -104,6 +129,4 @@ python scripts/make_heatmaps.py --help
 ```
 
 The heatmap code is an interpretation utility and does not alter training or
-test metrics.
-map code is an interpretation utility and does not alter training or
 test metrics.

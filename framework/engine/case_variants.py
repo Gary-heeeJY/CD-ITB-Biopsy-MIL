@@ -1,4 +1,9 @@
-"""Case-level aggregation variants reported by the paper."""
+"""Case-level aggregation variants reported by the paper.
+
+A and D are the two settings used before this public release was organized.
+B and C isolate the attention and Transformer components respectively so the
+four-way ablation uses the same slide encoder, classifier, and training loop.
+"""
 
 import torch
 import torch.nn as nn
@@ -75,7 +80,13 @@ class Case_predict_variant(nn.Module):
 
 
 VARIANT_FLAGS = {
+    # Mean pooling: no attention token and no Transformer.
     "A": {"use_afs": False, "use_transformer": False, "use_cls_token": False},
+    # Attention-only: gated attention produces the case token, then MLP.
+    "B": {"use_afs": True, "use_transformer": False, "use_cls_token": False},
+    # Transformer-only: learned case token attends to slide tokens.
+    "C": {"use_afs": False, "use_transformer": True, "use_cls_token": True},
+    # Proposed model: attention-derived token plus Transformer fusion.
     "D": {"use_afs": True, "use_transformer": True, "use_cls_token": False},
 }
 
@@ -90,6 +101,16 @@ def build_case_predict(variant, cfg):
 class Case_predict_MeanPool(Case_predict_variant):
     def __init__(self, cfg):
         super().__init__(cfg, **VARIANT_FLAGS["A"])
+
+
+class Case_predict_AFSOnly(Case_predict_variant):
+    def __init__(self, cfg):
+        super().__init__(cfg, **VARIANT_FLAGS["B"])
+
+
+class Case_predict_TransOnly(Case_predict_variant):
+    def __init__(self, cfg):
+        super().__init__(cfg, **VARIANT_FLAGS["C"])
 
 
 class Case_predict_Full(Case_predict_variant):

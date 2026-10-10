@@ -169,6 +169,56 @@ Run the reported AGTA ablation:
 python scripts/train_ablation.py --variant meanpool
 ```
 
+To separate the two internal components of the case-level aggregation,
+train the two additional controls with the same slide-level MambaMIL,
+features, splits, optimizer, and seed:
+
+```bash
+python scripts/train_ablation.py --variant attention_only
+python scripts/train_ablation.py --variant transformer_only
+```
+
+The four settings are therefore: `meanpool` (A), `attention_only` (B),
+`transformer_only` (C), and the proposed full model (D). B keeps the gated
+attention-based feature selection and removes the Transformer. C keeps the
+Transformer and uses a learned case token instead of the attention-derived
+token. The full model is trained with:
+
+```bash
+python scripts/train_main.py --cfg configs/MambaMIL_DynamicWeight.yaml
+```
+
+After each training run, evaluate the corresponding checkpoint on the
+internal or external labels and features. The wrapper supplies the correct
+case-level model automatically; only paths that point to your local data and
+checkpoint directory need to be changed:
+
+```bash
+python scripts/test_ablation.py --variant meanpool \
+  --expe_name outputs/AJP_Comparison_experiments/MUSK_MambaMIL_DynamicWeight_A_meanpool/seed-421 \
+  --ex_result outputs/ablation_meanpool_internal \
+  --label_csv_file data/labels/internal_test.csv \
+  --feat_file data/features/MUSK
+
+python scripts/test_ablation.py --variant attention_only \
+  --expe_name outputs/AJP_Comparison_experiments/MUSK_MambaMIL_DynamicWeight_B_attention_only/seed-421 \
+  --ex_result outputs/ablation_attention_only_internal \
+  --label_csv_file data/labels/internal_test.csv \
+  --feat_file data/features/MUSK
+
+python scripts/test_ablation.py --variant transformer_only \
+  --expe_name outputs/AJP_Comparison_experiments/MUSK_MambaMIL_DynamicWeight_C_transformer_only/seed-421 \
+  --ex_result outputs/ablation_transformer_only_internal \
+  --label_csv_file data/labels/internal_test.csv \
+  --feat_file data/features/MUSK
+```
+
+For external evaluation, replace the label file and feature directory with
+the external set and its CORAL-aligned features, for example
+`data/features/MUSK_CORAL`. Each training run writes a pooled out-of-fold
+validation threshold. The test entry points load that file and never fit a
+threshold from internal or external test labels.
+
 The binary CD-versus-ITB threshold is fitted once from pooled out-of-fold
 validation predictions and saved as `validation_threshold.json`. Test scripts
 load that threshold and never fit it using test labels.

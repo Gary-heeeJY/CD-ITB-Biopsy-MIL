@@ -33,13 +33,20 @@ from engine import (
     train_val_case_mamba,
     train_val_case_mamba_DynamicWeight
 )
+from engine.case_variants import Case_predict_AFSOnly, Case_predict_TransOnly
 from criterion import (build_criterion)
 from optimizer import build_optimizer, build_lr_scheduler
 from utils_ import mkdir, setup_logger, seed_torch
 from utils_.evaluation import write_pooled_validation_threshold
 
 
-def main():
+CASE_VARIANT_CLASSES = {
+    "attention_only": Case_predict_AFSOnly,
+    "transformer_only": Case_predict_TransOnly,
+}
+
+
+def main(case_variant="full"):
     """
     主训练函数
     """
@@ -52,8 +59,9 @@ def main():
     # 3. 构建模型
     # -------------------------------------------------------
     # 3.1 构建 Case 级别的预测模型 (ViT/MLP)
-    print(f"创建 Case_predict 模型... 模式: {cfg.SOLVER.feat_distillation}")
-    case_model = Case_predict(cfg).cuda()
+    print(f"Creating case model: {case_variant}")
+    case_model_cls = CASE_VARIANT_CLASSES.get(case_variant, Case_predict)
+    case_model = case_model_cls(cfg).cuda()
 
     # 3.2 构建 Slide 级主模型 (这里将调用 build_model 中的 MambaMIL 分支)
     print(f"创建主模型: {cfg.model_type}...")
@@ -110,6 +118,12 @@ if __name__ == '__main__':
         help='配置文件路径',
         type=str
     )
+    parser.add_argument(
+        "--aggregation_variant",
+        choices=["full", "attention_only", "transformer_only"],
+        default="full",
+        help="Case-level aggregation variant. The default is the proposed model.",
+    )
     args = parser.parse_args()
 
     # 加载配置文件
@@ -149,7 +163,7 @@ if __name__ == '__main__':
             print(f"========== 正在启动 Fold {i} (Model: {cfg.model_type}) ==========")
 
             # 执行训练
-            main()
+            main(args.aggregation_variant)
 
         experiment_dir = os.path.join(cfg.model_dir, cfg.Task_name, f'seed-{seed}')
         threshold = write_pooled_validation_threshold(experiment_dir, folds=cfg.DATA.fold_K)

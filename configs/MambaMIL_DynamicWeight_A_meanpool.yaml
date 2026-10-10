@@ -1,14 +1,6 @@
 # ============================================
-# MambaMIL 消融实验 A —— Mean pooling
-# Slide: MambaMIL | AFS: × | Transformer: × | 聚合: mean(slide features) -> MLP
-# 与 MambaMIL_DynamicWeight.yaml (变体D) 的唯一差异：
-#   - Task_name 加 _A_meanpool 后缀（结果存独立目录）
-#   - SOLVER.feat_distillation: Mean  （仅文档说明，变体A由代码强制 mean_pool，不读此值）
-#   - MODEL.Vit.depth: 0             （变体A无 Transformer）
-# ============================================
-
-# ============================================
-# 基本配置
+# MambaMIL ablation A: mean pooling
+# Slide: MambaMIL | AFS: no | Transformer: no
 # ============================================
 Task_name: 'MUSK_MambaMIL_DynamicWeight_A_meanpool'
 model_type: 'MambaMIL'
@@ -21,78 +13,58 @@ model_dir: './outputs/AJP_Comparison_experiments'
 save_detail_result: True
 seed: 421
 
-# ============================================
-# 数据配置 (DATA)
-# ============================================
 DATA:
   type: 'biospy_CD_ITB'
   batch_size: 1
   fold_K: 5
   fold_idx: 0
   num_workers: 4
-
   split_fold: './data/splits/internal_train'
   pt_path: './data/features/MUSK'
   label_csv_file: './data/labels/internal_train.csv'
-
   n_classes: 3
   case_classes: 2
   hidden_dim: 1024
-
   slide_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0, 'NO': 2}
   case_label_dict: {'CD': 1, 'ITB': 0, 'TB': 0}
   label_col: 'slide_label'
 
-# ============================================
-# 优化器配置 (SOLVER)
-# ============================================
 SOLVER:
   num_epochs: 100
   val_step: 1
   lr: 5e-5
   case_lr: 5e-5
-
   weight_decay: 0.00001
   num_epochs_decay: 30
   decay_ratio: 0.1
-
   lr_low: 1e-7
   lr_warm_epoch: 10
   lr_cos_epoch: 90
-
   beta1: 0.9
   beta2: 0.999
-
   METRIC: 'LADE'
-
   FocalLoss:
     alpha: None
     gamma: 4
     reduction: 'mean'
-
-  activate_func: softmax
-  case_activate_func: softmax
-  # 变体A 不依赖 AFS；此处值仅为文档，代码强制 mean_pool
-  feat_distillation: Mean
-
+  activate_func: 'softmax'
+  case_activate_func: 'softmax'
+  feat_distillation: 'Mean'
   LDAM:
     max_m: 0.5
     s: 30
 
-# ============================================
-# 模型架构配置 (MODEL)
-# ============================================
 MODEL:
   Mamba:
-      type: 'SRMamba'
-      layer: 2
-      act: 'gelu'
-      dropout: 0.3
-      rate: 10
+    type: 'SRMamba'
+    layer: 2
+    act: 'gelu'
+    dropout: 0.3
+    rate: 10
   Vit:
-    depth: 0          # 【变体A】无 Transformer
+    depth: 0
     mlp_ratio: 4.0
     num_heads: 8
-    qkv_bias: False
+    qkv_bias: false
     drop_rate: 0.3
     attn_drop_rate: 0.0
